@@ -1,0 +1,24 @@
+<project name="h" basedir="." default="run">
+  <path id="cp">
+	<fileset dir="lib">
+	  <include name="*.jar"/>
+	</fileset>
+	<pathelement path="build"/>
+  </path>
+
+  <target name="build">
+	<mkdir dir="build"/>
+	<copy todir="build">
+	  <fileset dir="src">
+		<include name="*.xml"/>
+	  </fileset>
+	</copy>
+	<javac debug="on" srcdir="src" destdir="build" classpathref="cp">
+	  <include name="**/*.java"/>
+	</javac>
+  </target>
+
+  <target name="run" depends="build">
+	<java fork="on" classname="App" classpathref="cp"/>
+  </target>
+</project>

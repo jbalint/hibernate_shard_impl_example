@@ -1,9 +1,15 @@
 <project name="h" basedir="." default="run">
   <path id="cp">
 	<fileset dir="lib">
-	  <include name="*.jar"/>
+ 	  <include name="*.jar"/>
 	</fileset>
 	<pathelement path="build"/>
+
+	<!-- fabric -->
+	<fileset dir="../fabric_java_rox/lib">
+ 	  <include name="*.jar"/>
+	</fileset>
+	<pathelement path="../fabric_java_rox/build"/>
   </path>
 
   <target name="build">
@@ -19,6 +25,6 @@
   </target>
 
   <target name="run" depends="build">
-	<java fork="on" classname="App" classpathref="cp"/>
+	<java fork="on" classname="AppFabric" classpathref="cp"/>
   </target>
 </project>

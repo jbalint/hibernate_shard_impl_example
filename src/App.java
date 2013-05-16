@@ -52,18 +52,7 @@ public class App {
 				}
 			};
 
-		ShardStrategyFactory myShardStrategyFactory = new ShardStrategyFactory() {
-				public ShardStrategy newShardStrategy(List<ShardId> shardIds) {
-					ShardSelectionStrategy pss = new MyShardSelectionStrategy();
-					ShardResolutionStrategy prs = new MyShardResolutionStrategy();
-					ShardAccessStrategy pas = new MyShardAccessStrategy();
-					return new ShardStrategyImpl(pss, prs, pas);
-				}
-			};
-		if (true)
 			return shardStrategyFactory;
-		else
-			return myShardStrategyFactory;
 	}
 
 	ShardConfiguration buildShardConfig(String configFile) {

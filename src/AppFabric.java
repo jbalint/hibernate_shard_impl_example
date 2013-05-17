@@ -50,16 +50,16 @@ public class AppFabric {
     }
 
     public SessionFactory createSessionFactory(final String fabricUrl) throws Exception {
-	/* TODO make this not depend on XML */
+	/* prototype config, copied for each shard */
+	Properties sharedProperties = new Properties();
+	sharedProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLInnoDBDialect");
+	sharedProperties.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
+	/* TODO need from user: database, username, password, table */
+	sharedProperties.setProperty("hibernate.connection.username", "root");
+	sharedProperties.setProperty("hibernate.connection.password", "");
+
 	Configuration prototypeConfig = new Configuration();
-	Configuration c = prototypeConfig;
-		c.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLInnoDBDialect");
-		c.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
-		/* TODO need from user: database, username, password */
-		c.setProperty("hibernate.connection.url", "jdbc:mysql://XYZBAD/test");
-		c.setProperty("hibernate.connection.username", "root");
-		c.setProperty("hibernate.connection.password", "");
-		c.setProperty("hibernate.connection.shard_id", "0");
+	prototypeConfig.mergeProperties(sharedProperties);
 	prototypeConfig.addResource("domain.hbm.xml");
 
 	List<ShardConfiguration> shardConfigs = new ArrayList<ShardConfiguration>();
@@ -73,14 +73,11 @@ public class AppFabric {
 	    for (Server s : g.getServers()) {
 		shardId++;
 
-		/*Configuration*/ c = new Configuration();
-		c.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLInnoDBDialect");
-		c.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
-		/* TODO need from user: database, username, password */
+		Configuration c = new Configuration();
+		c.mergeProperties(sharedProperties);
 		c.setProperty("hibernate.connection.url", "jdbc:mysql://" + s.getHostname() + "/test");
-		c.setProperty("hibernate.connection.username", "root");
-		c.setProperty("hibernate.connection.password", "");
 		c.setProperty("hibernate.connection.shard_id", ""+shardId);
+
 		ConfigurationToShardConfigurationAdapter adapter = new ConfigurationToShardConfigurationAdapter(c);
 		shardConfigs.add(adapter);
 		shardMapping.put(s, shardId);
@@ -90,7 +87,6 @@ public class AppFabric {
 	ShardStrategyFactory shardStrategyFactory = new ShardStrategyFactory() {
 		public ShardStrategy newShardStrategy(List<ShardId> shardIds) {
 		    MyShardStrategy s = new MyShardStrategy(fabricUrl, shardMapping);
-		    //ShardAccessStrategy pas = new MyShardAccessStrategy();
 		    ShardAccessStrategy pas = new SequentialShardAccessStrategy();
 		    return new ShardStrategyImpl(s, s, pas);
 		}
